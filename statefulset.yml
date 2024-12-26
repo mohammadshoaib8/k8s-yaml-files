@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: msql-statefulset
+  namespace: nginx
+spec:
+  serviceName: mysql-service
+  replicas: 3 # by default is 1
+  selector:
+    matchLabels:
+      app: nginx # has to match .spec.template.metadata.labels
+  # minReadySeconds: 10 # by default is 0
+  template:
+    metadata:
+      labels:
+        app: nginx # has to match .spec.selector.matchLabels
+    spec:
+      # terminationGracePeriodSeconds: 10
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        ports:
+        - containerPort: 3306
+          # name: web
+        env: 
+          - name: MYSQL_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mysql-secret
+                key: MYSQL_ROOT_PASSWORD
+
+          - name: MYSQL_DATABASE
+            valueFrom:
+              configMapKeyRef:
+                name: mysql-config-map
+                key: MYSQL_DATABASE
+                
+        volumeMounts:
+        - name: sql-data
+          mountPath: /var/lib/mysql
+  volumeClaimTemplates:
+  - metadata:
+      name: mysql-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      # storageClassName: "my-storage-class"
+      resources:
+        requests:
+          storage: 1Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+  namespace: nginx
+spec:
+  clusterIP: None
+  selector:
+    app: nginx
+  ports:
+  - name: mysql
+    protocol: tcp
+    port: 3306
+    targetPort: 3306
+  
