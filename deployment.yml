@@ -1,7 +1,11 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+<<<<<<< Updated upstream
   name: nginx-deployment
+=======
+  name: my-nginxdeployment
+>>>>>>> Stashed changes
   namespace: nginx
 spec:
   replicas: 1
