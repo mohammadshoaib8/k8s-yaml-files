@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: demo-job
+  name: demojob
   namespace: nginx
 spec:
   completions: 1
